@@ -23,7 +23,10 @@ app.post('/todos', (req, res) => {
   });
 });
 
-app.get('/list', (req, res) => {
+
+app.get('/todos')
+
+app.get('/todos', (req, res) => {
   Todo.find().then((doc) => {
     res.send(doc);
   },(e) => {
