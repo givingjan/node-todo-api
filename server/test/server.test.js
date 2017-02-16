@@ -1,15 +1,17 @@
 const expect = require('expect');
 const supertest = require('supertest');
-
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
 const todos = [
   {
+    _id : new ObjectID(),
     text : 'First test todo',
   },
   {
+    _id : new ObjectID(),
     text : 'Second test todo',
   }
 ];
@@ -25,7 +27,7 @@ beforeEach((done) => {
 describe('POST / todos', () => {
   it('should create a new todo event.', (done) => {
     supertest(app)
-    .post('/todos')
+    .post('/todos/add')
     .send({text : 'cc'})
     .expect(200)
     .end((err, res) => {
@@ -59,7 +61,7 @@ describe('POST / todos', () => {
 });
 
 describe('GET / todos', () => {
-  it('sould get all todos', (done) => {
+  it('should get all todos', (done) => {
     supertest(app)
     .get('/todos')
     .send({})
@@ -70,3 +72,43 @@ describe('GET / todos', () => {
     .end(done());
   });
 });
+
+describe('GET / todos/id/id:', () => {
+  it('should get todo by id', (done) => {
+    supertest(app)
+    .get(`todos/id/${todos[0]._id.toHexString()}`)
+    .expect(200)
+    .expect((res) => {
+      console.log(res.body);
+      expect(res.body.obj.text).toBe(todos[0].text)
+    })
+    .end(done());
+  });
+
+  it('should return 400 if todo not found',(done) => {
+    var hexId = new ObjectID().toHexString();
+    supertest(app)
+    .get(`todos/id/${hexId}`)
+    .expect(400)
+    .end(done());
+  });
+
+  it('should return 400 if todo`s format is wrong.',(done) => {
+    supertest(app)
+    .get(`todos/id/123`)
+    .expect(400)
+    .end(done());
+  });
+
+});
+
+
+// describe('GET / todos/id:',() => {
+//   it('should get todo by Id',(done) => {
+//     supertest(app)
+//     // .get(`todos/id/${todos[0]._id.toHexString()}`)
+//     .get('/todos')
+//     .expect(200)
+//     .end(done);
+//   });
+// });

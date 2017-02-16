@@ -40,7 +40,7 @@ app.get('/todos/id/:id', (req, res) => {
     return res.status(400).send();
   }
 
-  console.log(id);
+  console.log(res);
   Todo.findById(id).then((doc) => {
     if(!doc) {
       return []
