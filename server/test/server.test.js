@@ -117,6 +117,26 @@ describe('DELETE /todos/id/id:', () => {
   });
 });
 
+describe('PATCH /todos/id/id:', () => {
+  it('should modify todo completed field to TRUE',(done) => {
+    supertest(app)
+    .patch(`todos/id/${todos[0]._id.toHexString()}`)
+    .send({completed : true})
+    .expect(200)
+    .end((err, res) => {
+      if (err) {
+        return done();
+      }
+      Todo.findById(todos[0]._id.toHexString).then((doc) => {
+        expect(doc.completed).toBe(true);
+        done();
+      }).catch((e) => {
+        done();
+      });
+    })
+  })
+})
+
 
 // describe('GET / todos/id:',() => {
 //   it('should get todo by Id',(done) => {
