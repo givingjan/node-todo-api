@@ -1,4 +1,5 @@
 const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
 var express = require('express');
 var bodyPaser = require('body-parser');
@@ -7,7 +8,7 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
 var app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 80;
 
 app.use(bodyPaser.json());
 
@@ -95,6 +96,37 @@ app.delete('/todos/id/:id',(req, res) => {
       errorMsg : 'Id is Invalid'
     });
   });
+});
+
+// Update a resource
+app.patch('/todos/id/:id',(req ,res) => {
+  var id = req.params.id;
+  var body = _.pick(req.body, ['text','completed']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(400).send({
+      success : false,
+      errorMsg : 'Id is Invalid',
+    })
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id,{$set : body}, {new : true}).then((todo) => {
+    if (!todo) {
+      return res.status(400).send();
+    }
+
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  })
+
 });
 
 app.listen(port, () => {
