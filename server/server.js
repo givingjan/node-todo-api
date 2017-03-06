@@ -131,6 +131,26 @@ app.patch('/todos/id/:id',(req ,res) => {
 
 });
 
+
+// POST /Users
+app.post('/users/login',(req, res) => {
+  console.log(req.body);
+  // req.body.email
+  var body = _.pick(req.body,['email','password']);
+  console.log(body);
+  var user = new User(body);
+
+  user.save().then(() => {
+    return user.generateAuthToken();
+    // res.send(doc);
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+
+});
+
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });
